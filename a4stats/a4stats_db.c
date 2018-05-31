@@ -14,7 +14,7 @@
 #define CLEANUP_INACTIVE_DAYS 30 /* disable channels where nothing happened for this many days */
 #define CLEANUP_DELETE_DAYS 5 /* delete data for channels that have been disabled for this many days */
 
-#define A4STATS_DB_TOLOWER(x) "translate(lower(" x "), E'[]\\\\~', '{}|^')"
+#define A4STATS_DB_TOLOWER(x) "translate(lower(" x "), '[]\\~', '{}|^')"
 #define A4STATS_DB_EQ_NOCASE(x, y) A4STATS_DB_TOLOWER(x) " = " A4STATS_DB_TOLOWER(y)
 
 MODULE_VERSION("");
