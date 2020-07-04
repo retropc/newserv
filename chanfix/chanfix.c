@@ -51,7 +51,7 @@ void cfhook_auth(int hook, void *arg);
 
 /* helper functions */
 regop *cf_createregop(nick *np, chanindex *cip);
-void cf_deleteregop(chanindex *cip, regop *ro);
+int cf_deleteregop(chanindex *cip, regop *ro);
 unsigned long cf_gethash(nick *np, int type);
 
 int cf_storechanfix(void);
@@ -773,8 +773,11 @@ void cfsched_doexpire(void *arg) {
           }
 
           if (ro->score == 0 || ro->lastopped < (currenttime - CFREMEMBEROPS)) {
-            cf_deleteregop(cip, ro);
             cfregop++;
+            if (!cf_deleteregop(cip, ro)) {
+              /* last one */
+              break;
+            }
           }
         }
       }
@@ -1064,12 +1067,12 @@ regop *cf_createregop(nick *np, chanindex *cip) {
   return rolist[slot];
 }
 
-void cf_deleteregop(chanindex *cip, regop *ro) {
+int cf_deleteregop(chanindex *cip, regop *ro) {
   chanfix *cf = cip->exts[cfext];
   int a;
 
   if (cf == NULL)
-    return;
+    return 0;
 
   for (a=0;a<cf->regops.cursi;a++) {
     if (((regop**)cf->regops.content)[a] == ro) {
@@ -1088,7 +1091,11 @@ void cf_deleteregop(chanindex *cip, regop *ro) {
     /* we could try to free the chanindex* here
        but that would make cfsched_dosample a lot more
        complicated */
+
+    return 0; /* last one */
   }
+
+  return 1;
 }
 
 int cf_fixchannel(channel *cp) {
