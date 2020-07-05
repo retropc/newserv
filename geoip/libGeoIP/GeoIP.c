@@ -653,7 +653,7 @@ GeoIP* GeoIP_open (const char * filename, int flags) {
 		return NULL;
 #endif
 
-	gi = (GeoIP *)malloc(sizeof(GeoIP));
+	gi = (GeoIP *)calloc(1, sizeof(GeoIP));
 	if (gi == NULL)
 		return NULL;
 	len = sizeof(char) * (strlen(filename)+1);
