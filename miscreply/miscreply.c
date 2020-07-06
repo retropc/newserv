@@ -80,6 +80,9 @@ void _fini() {
   deregisterserverhandler("V",  &handleversionmsg); /* VERSION */
   deregisterserverhandler("W",  &handlewhoismsg);   /* WHOIS   */
 
+  freesstring(admin1);
+  freesstring(admin2);
+  freesstring(admin3);
 }
 
 

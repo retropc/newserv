@@ -87,11 +87,11 @@ int main(int argc, char **argv) {
 
   freeconfig();
 
-  fini_logfile();
   finischedule();
   finihandlers();
 
   nsexit();
+  fini_logfile();
 
   return 0;
 }

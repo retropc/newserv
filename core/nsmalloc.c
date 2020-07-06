@@ -76,8 +76,9 @@ void nsfree(unsigned int poolid, void *ptr) {
 
   if (nsmp->prev) {
     nsmp->prev->next = nsmp->next;
-  } else
-    nsmpools[poolid].blocks = NULL;
+  } else {
+    nsmpools[poolid].blocks = nsmp->next;
+  }
 
   if (nsmp->next) {
     nsmp->next->prev = nsmp->prev;
@@ -164,7 +165,9 @@ void nscheckfreeall(unsigned int poolid) {
  
   if (nsmpools[poolid].blocks) {
     Error("core",ERR_INFO,"nsmalloc: Blocks still allocated in pool #%d (%s): %zub, %lu items",poolid,nsmpoolnames[poolid]?nsmpoolnames[poolid]:"??",nsmpools[poolid].size,nsmpools[poolid].count);
-    nsfreeall(poolid);
+    if (!RUNNING_ON_VALGRIND) { /* leave it leaking so valgrind will show us what it is */
+      nsfreeall(poolid);
+    }
   }
 }
 
@@ -176,6 +179,6 @@ void nsexit(void) {
   unsigned int i;
   
   for (i=0;i<MAXPOOL;i++)
-    nsfreeall(i);
+    nscheckfreeall(i);
 }
 

@@ -173,9 +173,9 @@ void _fini() {
   deregisterhook(HOOK_NICK_MODEOPER, &noperserv_oper_detection);
   deregisterhook(HOOK_CONTROL_WHOISREQUEST, &noperserv_whois_handler);
 
-  releaseauthnameext(noperserv_ext);
-
   noperserv_cleanup_db();
+
+  releaseauthnameext(noperserv_ext);
 }
 
 void registercontrolhelpcmd(const char *name, int level, int maxparams, CommandHandler handler, char *helpstr) {

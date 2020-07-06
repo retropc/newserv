@@ -37,6 +37,15 @@ void initschedule() {
 
 void finischedule() {
   deregisterhook(HOOK_CORE_STATSREQUEST, &schedulestats);
+
+  /* GC deleted events before shutdown */
+  for(int i=0;i<heapsize;i++) {
+    schedule *sp=events[i];
+    if (sp->deleted) {
+      freeschedule(sp);
+    }
+  }
+
   free(events);
 }
 

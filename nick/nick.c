@@ -151,8 +151,7 @@ void handleserverchange(int hooknum, void *arg) {
   
   switch(hooknum) {
     case HOOK_SERVER_NEWSERVER:
-      servernicks[servernum]=(nick **)nsmalloc(POOL_NICK,(serverlist[servernum].maxusernum+1)*sizeof(nick **));
-      memset(servernicks[servernum],0,(serverlist[servernum].maxusernum+1)*sizeof(nick **));
+      servernicks[servernum]=(nick **)nscalloc(POOL_NICK,(serverlist[servernum].maxusernum+1),sizeof(nick **));
       break;
       
     case HOOK_SERVER_LOSTSERVER:
