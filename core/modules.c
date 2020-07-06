@@ -324,7 +324,13 @@ int isloaded(char *modulename) {
 }
 
 
-int rmmod(char *modulename, int close) {
+int rmmod(char *modulename) {
+  static int valgrind_warning_emitted;
+  if (RUNNING_ON_VALGRIND && !valgrind_warning_emitted) {
+    valgrind_warning_emitted = 1;
+    Error("core", ERR_WARNING, "Unloading module whilst under valgrind -- make sure you're using --keep-debuginfo=yes to preserve module stack information");
+  }
+
   int i,j;
   module *mods;
   struct module_dep *mdp;
@@ -340,7 +346,7 @@ int rmmod(char *modulename, int close) {
   if ((mdp=getmoduledep(modulebuf))) {
     for (j=0;j<mdp->numchildren;j++) {
       if (isloaded(mdp->children[j]->name->content)) {
-        if (rmmod(mdp->children[j]->name->content, close)) {
+        if (rmmod(mdp->children[j]->name->content)) {
           Error("core",ERR_WARNING,"Unable to remove child module %s (depends on %s)",
                  mdp->children[j]->name->content, modulebuf);
           return 1;
@@ -358,17 +364,7 @@ int rmmod(char *modulename, int close) {
   
   mods=(module *)(modules.content);
     
-  if (!close
-#ifdef BROKEN_DLCLOSE
-      || 1
-#endif
-     ) {
-    void (*fini)();
-    fini = dlsym(mods[i].handle, "__fini");
-    if(!dlerror())
-      fini();
-  } else
-    dlclose(mods[i].handle);
+  dlclose(mods[i].handle);
 
   freesstring(mods[i].name);
   array_delslot(&modules,i);
@@ -437,7 +433,7 @@ void safereloadcallback(void *arg) {
     return;
   
   preparereload(safereload_str->content);
-  rmmod(safereload_str->content, 1);
+  rmmod(safereload_str->content);
   insmod(safereload_str->content);
   reloadmarked();
 
@@ -466,10 +462,7 @@ void newserv_shutdown() {
 
     strlcpy(buf, mods[0].name->content, sizeof(buf));
 
-    /* Unload the module unless we're running on Valgrind -
-     * in which case unloading the module would invalidate
-     * stacktraces Valgrind has captured so far. */
-    rmmod(buf, !RUNNING_ON_VALGRIND);
+    rmmod(buf);
   }
   
   clearmoduledeps();

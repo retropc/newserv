@@ -1,5 +1,4 @@
 #include "../lib/sstring.h"
-#include "../lib/valgrind.h"
 #include "events.h"
 #include "schedule.h"
 #include "hooks.h"
@@ -93,12 +92,6 @@ int main(int argc, char **argv) {
   finihandlers();
 
   nsexit();
-
-  if (RUNNING_ON_VALGRIND) {
-    /* We've already manually called _fini for each of the modules. Make sure
-     * it's not getting called again when the libraries are unloaded. */
-    _exit(0);
-  }
 
   return 0;
 }

@@ -139,12 +139,7 @@ void lua_startup(void *arg) {
   lua_loadscripts();
 }
 
-#ifdef BROKEN_DLCLOSE
-void __fini() {
-#else
 void _fini() {
-#endif
-
   if(loaded) {
     if(startsched)
       deleteschedule(startsched, &lua_startup, NULL);
